@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>PC Control</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PC Control">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23667eea'/><text y='70' x='50' text-anchor='middle' font-size='60' fill='white'>💻</text></svg>">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        .controls {
+            flex: 1;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            align-content: start;
+        }
+
+        .control-btn {
+            background: rgba(255,255,255,0.95);
+            border: none;
+            border-radius: 20px;
+            padding: 25px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            min-height: 100px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .control-btn.danger {
+            background: rgba(255,107,107,0.95);
+            color: white;
+        }
+
+        .control-btn.warning {
+            background: rgba(255,193,7,0.95);
+            color: white;
+        }
+
+        .control-btn.info {
+            background: rgba(52,144,220,0.95);
+            color: white;
+        }
+
+        .control-btn .icon {
+            font-size: 28px;
+            line-height: 1;
+        }
+
+        .control-btn .label {
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .delay-control {
+            grid-column: 1 / -1;
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+        }
+
+        .delay-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .delay-input {
+            background: rgba(102,126,234,0.1);
+            border: none;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            width: 60px;
+            color: #333;
+        }
+
+        .response {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.95);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            backdrop-filter: blur(20px);
+            font-weight: 600;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            max-width: 320px;
+            min-width: 280px;
+        }
+
+        .response.success {
+            background: rgba(76,175,80,0.95);
+            color: white;
+        }
+
+        .response.error {
+            background: rgba(244,67,54,0.95);
+            color: white;
+        }
+
+        .response-message {
+            margin-bottom: 15px;
+        }
+
+        .response-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .response-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .response-btn:active {
+            transform: scale(0.95);
+        }
+
+        .response-btn.cancel {
+            background: rgba(244,67,54,0.9);
+        }
+
+        .install-prompt {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+            backdrop-filter: blur(20px);
+        }
+
+        .install-btn {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        /* Стили для планировщика */
+        .scheduler {
+            grid-column: 1 / -1;
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .scheduler h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .scheduler-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .form-select {
+            flex: 1;
+            background: rgba(102,126,234,0.1);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .form-input {
+            background: rgba(102,126,234,0.1);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #333;
+            width: 80px;
+            text-align: center;
+        }
+
+        .time-input {
+            background: rgba(102,126,234,0.1);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #333;
+            width: 120px;
+            text-align: center;
+        }
+
+        .mode-toggle {
+            display: flex;
+            background: rgba(102,126,234,0.1);
+            border-radius: 8px;
+            padding: 2px;
+            gap: 2px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .schedule-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .schedule-btn:active {
+            transform: scale(0.95);
+        }
+
+        .scheduled-tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task-item {
+            background: rgba(102,126,234,0.1);
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .task-command {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .task-timer {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .cancel-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .no-tasks {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        @media (max-width: 375px) {
+            .controls {
+                gap: 12px;
+                padding: 15px;
+            }
+            
+            .control-btn {
+                padding: 20px 10px;
+                min-height: 85px;
+            }
+            
+            .control-btn .icon {
+                font-size: 24px;
+            }
+        }
+
+        /* Темная тема для системы */
+        @media (prefers-color-scheme: dark) {
+            .control-btn {
+                background: rgba(28,28,30,0.95);
+                color: white;
+            }
+            
+            .delay-control, .scheduler {
+                background: rgba(28,28,30,0.95);
+            }
+            
+            .delay-label, .scheduler h3 {
+                color: white;
+            }
+            
+            .delay-input, .form-select, .form-input, .time-input {
+                background: rgba(255,255,255,0.1);
+                color: white;
+            }
+
+            .mode-toggle {
+                background: rgba(255,255,255,0.1);
+            }
+
+            .mode-btn {
+                color: #aaa;
+            }
+
+            .mode-btn.active {
+                background: #667eea;
+                color: white;
+            }
+
+            .task-command {
+                color: white;
+            }
+
+            .task-timer {
+                color: #aaa;
+            }
+
+            .task-item {
+                background: rgba(255,255,255,0.1);
+            }
+
+            .no-tasks {
+                color: #aaa;
+            }
+
+            label {
+                color: #aaa !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💻 PC Control</h1>
+        <div class="status" id="status">
+            <span class="status-dot"></span>
+            <span>Подключение...</span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="delay-control">
+            <span class="delay-label">⏱️ Задержка</span>
+            <input type="number" id="delay" class="delay-input" value="3" min="0" max="60">
+            <span style="font-size: 12px; color: #666;">сек</span>
+        </div>
+
+        <div class="scheduler" id="scheduler">
+            <h3>📅 Планировщик команд</h3>
+            <div class="scheduler-form">
+                <div class="form-row">
+                    <select id="scheduleCommand" class="form-select">
+                        <option value="lock">🔒 Блокировка</option>
+                        <option value="sleep">😴 Сон</option>
+                        <option value="hibernate">🛌 Гибернация</option>
+                        <option value="restart">🔄 Перезагрузка</option>
+                        <option value="shutdown">⚡ Выключение</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="mode-toggle">
+                        <button class="mode-btn active" id="delayMode" onclick="switchMode('delay')">Через</button>
+                        <button class="mode-btn" id="timeMode" onclick="switchMode('time')">В</button>
+                    </div>
+                </div>
+                <div class="form-row" id="delayRow">
+                    <span style="font-size: 14px; color: #333;">через</span>
+                    <input type="number" id="scheduleDelay" class="form-input" value="60" min="1" max="3600">
+                    <span style="font-size: 14px; color: #333;">сек</span>
+                    <button class="schedule-btn" onclick="scheduleCommand()">Запланировать</button>
+                </div>
+                <div class="form-row" id="timeRow" style="display: none;">
+                    <span style="font-size: 14px; color: #333;">в</span>
+                    <input type="time" id="scheduleTime" class="time-input">
+                    <label style="font-size: 12px; color: #666; display: flex; align-items: center; gap: 4px;">
+                        <input type="checkbox" id="nextDay" style="margin: 0;">
+                        завтра
+                    </label>
+                    <button class="schedule-btn" onclick="scheduleCommand()">Запланировать</button>
+                </div>
+            </div>
+            <div class="scheduled-tasks" id="scheduledTasks">
+                <div class="no-tasks">Нет запланированных команд</div>
+            </div>
+        </div>
+
+        <button class="control-btn info" onclick="toggleScheduler()">
+            <span class="icon">📅</span>
+            <span class="label">Планировщик</span>
+        </button>
+
+        <button class="control-btn" onclick="cmd('lock')">
+            <span class="icon">🔒</span>
+            <span class="label">Блокировка</span>
+        </button>
+
+        <button class="control-btn warning" onclick="cmd('sleep')">
+            <span class="icon">😴</span>
+            <span class="label">Сон</span>
+        </button>
+
+        <button class="control-btn warning" onclick="cmd('hibernate')">
+            <span class="icon">🛌</span>
+            <span class="label">Гибернация</span>
+        </button>
+
+        <button class="control-btn danger" onclick="cmd('restart')">
+            <span class="icon">🔄</span>
+            <span class="label">Перезагрузка</span>
+        </button>
+
+        <button class="control-btn danger" onclick="cmd('shutdown')">
+            <span class="icon">⚡</span>
+            <span class="label">Выключение</span>
+        </button>
+    </div>
+
+    <div id="response" class="response">
+        <div class="response-message" id="responseMessage"></div>
+        <div class="response-buttons" id="responseButtons"></div>
+    </div>
+    
+    <div id="installPrompt" class="install-prompt">
+        📱 Добавьте на главный экран для быстрого доступа
+        <button class="install-btn" onclick="hideInstallPrompt()">Понятно</button>
+    </div>
+
+    <script>
+        // Автоматически определяем IP сервера из текущего URL, если это возможно
+        const determineServerAddress = () => {
+            // Проверяем, не запущена ли страница с сервера напрямую
+            if (window.location.hostname !== 'localhost' && 
+                window.location.hostname !== '127.0.0.1' && 
+                window.location.hostname !== '') {
+                return `${window.location.hostname}:${window.location.port || 8000}`;
+            }
+            // Иначе используем сохраненный или дефолтный адрес
+            return localStorage.getItem('serverAddress') || '192.168.1.55:8000';
+        };
+
+        const SERVER = determineServerAddress();
+        const BASE_URL = `http://${SERVER}`;
+        let schedulerVisible = false;
+        let scheduledTasks = [];
+        let updateTasksInterval;
+        let statusCheckInterval;
+        let lastTaskId = null;
+        let currentMode = 'delay'; // 'delay' или 'time'
+        let commandInProgress = false; // Флаг для отслеживания выполнения команды
+        let serverOnline = false; // Флаг статуса сервера
+
+        // Проверка статуса при загрузке
+        window.addEventListener('load', () => {
+            console.log('Используется сервер:', BASE_URL);
+            checkStatus();
+            showInstallPrompt();
+            setCurrentTime();
+            
+            // Запускаем регулярную проверку статуса сервера
+            statusCheckInterval = setInterval(checkStatus, 5000);
+        });
+
+        function setCurrentTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('scheduleTime').value = `${hours}:${minutes}`;
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Обновляем кнопки
+            document.getElementById('delayMode').classList.toggle('active', mode === 'delay');
+            document.getElementById('timeMode').classList.toggle('active', mode === 'time');
+            
+            // Показываем/скрываем соответствующие строки
+            document.getElementById('delayRow').style.display = mode === 'delay' ? 'flex' : 'none';
+            document.getElementById('timeRow').style.display = mode === 'time' ? 'flex' : 'none';
+        }
+
+        function calculateDelayFromTime(targetTime, forceNextDay = false) {
+            const now = new Date();
+            const [hours, minutes] = targetTime.split(':').map(Number);
+            
+            // Создаем целевое время
+            let target = new Date();
+            target.setHours(hours, minutes, 0, 0);
+            
+            // Если время уже прошло сегодня или принудительно на завтра
+            if (target <= now || forceNextDay) {
+                target.setDate(target.getDate() + 1);
+            }
+            
+            // Возвращаем разность в секундах
+            return Math.floor((target - now) / 1000);
+        }
+
+        async function checkStatus() {
+            const statusEl = document.getElementById('status');
+            try {
+                const response = await fetch(`${BASE_URL}/status`, {
+                    method: 'GET',
+                    cache: 'no-store',  // Отключаем кэширование для получения актуального статуса
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                if (response.ok) {
+                    statusEl.innerHTML = '<span class="status-dot"></span><span>Онлайн</span>';
+                    serverOnline = true;
+                    
+                    // Если сервер онлайн и планировщик открыт, обновляем задачи
+                    if (schedulerVisible) {
+                        fetchActiveTasks();
+                    }
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (error) {
+                statusEl.innerHTML = '<span class="status-dot" style="background:#f44336;"></span><span>Офлайн</span>';
+                serverOnline = false;
+                
+                // Если сервер офлайн и планировщик открыт, очищаем список задач
+                if (schedulerVisible) {
+                    scheduledTasks = [];
+                    renderScheduledTasks();
+                }
+            }
+        }
+
+        async function cmd(command) {
+            // Проверяем статус сервера
+            if (!serverOnline) {
+                showMessage('error', 'Сервер недоступен. Проверьте подключение.');
+                return;
+            }
+            
+            // Проверяем, не выполняется ли уже команда
+            if (commandInProgress) {
+                showMessage('error', 'Дождитесь завершения текущей команды');
+                return;
+            }
+
+            const delay = document.getElementById('delay').value;
+            const actionNames = {
+                shutdown: 'выключение',
+                restart: 'перезагрузка',
+                sleep: 'сон',
+                hibernate: 'гибернация',
+                lock: 'блокировка'
+            };
+            const action = actionNames[command] || command;
+
+            // Устанавливаем флаг выполнения команды
+            commandInProgress = true;
+
+            // Автоматически выполняем команду и показываем сообщение с возможностью отмены
+            try {
+                let url = `${BASE_URL}/${command}`;
+                if (delay > 0) url += `?delay=${delay}`;
+
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    const data = await response.json();
+                    showMessage('error', data.message || 'Ошибка выполнения');
+                    commandInProgress = false;
+                    return;
+                }
+                
+                const data = await response.json();
+                lastTaskId = data.task_id;
+                
+                // Показываем сообщение с кнопкой отмены
+                showMessage('success', data.message || `Команда "${action}" выполняется...`, data.task_id);
+                
+                // Обновляем список задач, если открыт планировщик
+                if (schedulerVisible) setTimeout(() => fetchActiveTasks(), 500);
+                
+            } catch (error) {
+                showMessage('error', 'Не удалось связаться с сервером');
+                commandInProgress = false;
+            } finally {
+                // Сбрасываем флаг после выполнения или ошибки
+                setTimeout(() => {
+                    commandInProgress = false;
+                }, 1000); // Небольшая задержка для предотвращения случайных повторных нажатий
+            }
+        }
+
+        async function scheduleCommand() {
+            // Проверяем статус сервера
+            if (!serverOnline) {
+                showMessage('error', 'Сервер недоступен. Проверьте подключение.');
+                return;
+            }
+            
+            // Проверяем, не выполняется ли уже команда
+            if (commandInProgress) {
+                showMessage('error', 'Дождитесь завершения текущей команды');
+                return;
+            }
+
+            const command = document.getElementById('scheduleCommand').value;
+            let delay;
+            let confirmMessage;
+            
+            if (currentMode === 'delay') {
+                delay = document.getElementById('scheduleDelay').value;
+                confirmMessage = `${delay} секунд`;
+            } else {
+                const targetTime = document.getElementById('scheduleTime').value;
+                const nextDay = document.getElementById('nextDay').checked;
+                
+                if (!targetTime) {
+                    showMessage('error', 'Укажите время выполнения');
+                    return;
+                }
+                
+                delay = calculateDelayFromTime(targetTime, nextDay);
+                if (delay <= 0) {
+                    showMessage('error', 'Указанное время уже прошло');
+                    return;
+                }
+                
+                const hours = Math.floor(delay / 3600);
+                const minutes = Math.floor((delay % 3600) / 60);
+                const dayText = nextDay ? ' завтра' : '';
+                
+                if (hours > 0) {
+                    confirmMessage = `${hours}ч ${minutes}м (в ${targetTime}${dayText})`;
+                } else {
+                    confirmMessage = `${minutes}м ${delay % 60}с (в ${targetTime}${dayText})`;
+                }
+            }
+            
+            // Подтверждение для опасных команд
+            if (['shutdown', 'restart'].includes(command)) {
+                const action = command === 'shutdown' ? 'выключить' : 'перезагрузить';
+                if (!confirm(`Вы уверены, что хотите запланировать ${action} компьютера через ${confirmMessage}?`)) return;
+            }
+
+            // Устанавливаем флаг выполнения команды
+            commandInProgress = true;
+
+            try {
+                const response = await fetch(`${BASE_URL}/${command}?delay=${delay}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Для запланированных команд не показываем кнопку отмены в response
+                    showMessage('success', `Команда запланирована на ${confirmMessage}`);
+                    // Обновляем список задач с небольшой задержкой
+                    if (schedulerVisible) {
+                        setTimeout(() => fetchActiveTasks(), 500);
+                    }
+                } else {
+                    showMessage('error', data.message || 'Ошибка планирования');
+                }
+            } catch (error) {
+                showMessage('error', 'Не удалось связаться с сервером');
+            } finally {
+                // Сбрасываем флаг после выполнения или ошибки
+                setTimeout(() => {
+                    commandInProgress = false;
+                }, 1000);
+            }
+        }
+
+        async function cancelTask(taskId) {
+            if (!serverOnline) {
+                showMessage('error', 'Сервер недоступен. Проверьте подключение.');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${BASE_URL}/cancel/${taskId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage('success', data.message || 'Команда отменена');
+                    // Обновляем список задач если планировщик открыт
+                    if (schedulerVisible) {
+                        setTimeout(() => fetchActiveTasks(), 300);
+                    }
+                } else {
+                    showMessage('error', data.message || 'Ошибка отмены');
+                }
+            } catch (error) {
+                showMessage('error', 'Не удалось связаться с сервером');
+            }
+        }
+
+        async function fetchActiveTasks() {
+            if (!serverOnline) {
+                scheduledTasks = [];
+                renderScheduledTasks();
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${BASE_URL}/active_tasks`, {
+                    method: 'GET',
+                    cache: 'no-store',  // Отключаем кэширование
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                if (!response.ok) {
+                    console.error('Ошибка ответа сервера:', response.status);
+                    scheduledTasks = [];
+                    renderScheduledTasks();
+                    return;
+                }
+                
+                const data = await response.json();
+                scheduledTasks = data.active_tasks || [];
+                renderScheduledTasks();
+            } catch (error) {
+                console.error('Ошибка при получении активных задач:', error);
+                scheduledTasks = [];
+                renderScheduledTasks();
+            }
+        }
+
+        function renderScheduledTasks() {
+            const taskList = document.getElementById('scheduledTasks');
+            
+            if (!taskList) {
+                console.error('Элемент scheduledTasks не найден!');
+                return;
+            }
+            
+            taskList.innerHTML = '';
+
+            if (scheduledTasks.length === 0) {
+                taskList.innerHTML = '<div class="no-tasks">Нет запланированных команд</div>';
+                return;
+            }
+
+            scheduledTasks.forEach((task) => {
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+                
+                const commandNames = {
+                    'shutdown': 'Выключение',
+                    'restart': 'Перезагрузка',
+                    'sleep': 'Сон',
+                    'hibernate': 'Гибернация',
+                    'lock': 'Блокировка'
+                };
+                
+                const commandName = commandNames[task.command] || task.command;
+                
+                // Форматируем время
+                let timeText;
+                const remaining = task.remaining_seconds;
+                
+                if (remaining >= 3600) {
+                    const hours = Math.floor(remaining / 3600);
+                    const minutes = Math.floor((remaining % 3600) / 60);
+                    timeText = `${hours}ч ${minutes}м`;
+                } else if (remaining >= 60) {
+                    const minutes = Math.floor(remaining / 60);
+                    const seconds = remaining % 60;
+                    timeText = `${minutes}м ${seconds}с`;
+                } else {
+                    timeText = `${remaining}с`;
+                }
+                
+                // Вычисляем время выполнения
+                const executeTime = new Date(Date.now() + remaining * 1000);
+                const isToday = executeTime.toDateString() === new Date().toDateString();
+                const timeString = executeTime.toLocaleTimeString('ru-RU', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                const datePrefix = isToday ? '' : 'завтра ';
+                
+                const html = `
+                    <div class="task-info">
+                        <div class="task-command">${commandName}</div>
+                        <div class="task-timer">Выполнится ${datePrefix}в ${timeString} (через ${timeText})</div>
+                    </div>
+                    <button class="cancel-btn" onclick="cancelTask('${task.task_id}')">Отмена</button>
+                `;
+                
+                taskItem.innerHTML = html;
+                taskList.appendChild(taskItem);
+            });
+        }
+
+        function toggleScheduler() {
+            const schedulerEl = document.getElementById('scheduler');
+            schedulerVisible = !schedulerVisible;
+            
+            if (schedulerVisible) {
+                schedulerEl.style.display = 'block';
+                // Принудительно загружаем задачи при открытии
+                fetchActiveTasks();
+                // Обновляем список запланированных задач каждые 2 секунды
+                updateTasksInterval = setInterval(() => {
+                    if (serverOnline) {
+                        fetchActiveTasks();
+                    }
+                }, 2000);
+            } else {
+                schedulerEl.style.display = 'none';
+                clearInterval(updateTasksInterval);
+            }
+        }
+
+        function showMessage(type, text, taskId = null, onConfirm = null) {
+            const responseEl = document.getElementById('response');
+            const messageEl = document.getElementById('responseMessage');
+            const buttonsEl = document.getElementById('responseButtons');
+
+            responseEl.className = `response ${type}`;
+            messageEl.textContent = text;
+            buttonsEl.innerHTML = '';
+
+            if (onConfirm) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'response-btn cancel';
+                cancelBtn.textContent = 'Отмена';
+                cancelBtn.onclick = () => hideMessage();
+                buttonsEl.appendChild(cancelBtn);
+
+                const okBtn = document.createElement('button');
+                okBtn.className = 'response-btn';
+                okBtn.textContent = 'ОК';
+                okBtn.onclick = async () => {
+                    hideMessage();
+                    await onConfirm();
+                };
+                buttonsEl.appendChild(okBtn);
+            } else {
+                // Кнопка отмены действия уже выполненного (например, taskId)
+                if (type === 'success' && taskId) {
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.className = 'response-btn cancel';
+                    cancelBtn.textContent = 'Отменить';
+                    cancelBtn.onclick = () => {
+                        cancelTask(taskId);
+                        hideMessage();
+                    };
+                    buttonsEl.appendChild(cancelBtn);
+                }
+
+                const okBtn = document.createElement('button');
+                okBtn.className = 'response-btn';
+                okBtn.textContent = 'ОК';
+                okBtn.onclick = hideMessage;
+                buttonsEl.appendChild(okBtn);
+
+                if (!taskId) {
+                    setTimeout(hideMessage, 3000);
+                }
+            }
+
+            responseEl.style.display = 'block';
+        }
+
+        function hideMessage() {
+            document.getElementById('response').style.display = 'none';
+        }
+
+        function showInstallPrompt() {
+            // Показать подсказку об установке на главный экран (только на iOS Safari)
+            if (window.navigator.standalone !== true && 
+                /iPhone|iPad/.test(navigator.userAgent) && 
+                !window.MSStream &&
+                !localStorage.getItem('hideInstall')) {
+                setTimeout(() => {
+                    document.getElementById('installPrompt').style.display = 'block';
+                }, 2000);
+            }
+        }
+
+        function hideInstallPrompt() {
+            document.getElementById('installPrompt').style.display = 'none';
+            localStorage.setItem('hideInstall', 'true');
+        }
+
+        // Haptic feedback для iOS
+        function haptic() {
+            if (window.navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+
+        // Добавляем haptic feedback к кнопкам
+        document.querySelectorAll('.control-btn').forEach(btn => {
+            btn.addEventListener('touchstart', haptic);
+        });
+    </script>
+</body>
+</html>

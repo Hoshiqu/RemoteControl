@@ -1,0 +1,2389 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>PC Control Pro</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PC Control Pro">
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- Favicon -->
+    <link rel="icon" href="/icons/favicon.svg" type="image/x-icon">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #4CAF50;
+            --warning-color: #FF9800;
+            --error-color: #f44336;
+            --info-color: #2196F3;
+            --bg-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-bg-dark: rgba(28, 28, 30, 0.95);
+            --text-primary: #333;
+            --text-secondary: #666;
+            --text-primary-dark: #ffffff;
+            --text-secondary-dark: #aaaaaa;
+            --border-radius: 16px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --btn-height: 110px; /* Высота кнопки планировщика */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        html {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            transition: var(--transition);
+            /* Убираем возможные белые отступы */
+            margin: 0;
+        }
+
+        /* Dark theme */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --card-bg: var(--card-bg-dark);
+                --text-primary: var(--text-primary-dark);
+                --text-secondary: var(--text-secondary-dark);
+            }
+        }
+
+        /* Анимация появления страницы */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            animation: fadeIn 0.8s ease-out 0.1s backwards;
+        }
+
+        .status-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.8s ease-out 0.2s backwards;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+        }
+
+        .status.online {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: rgba(76, 175, 80, 0.3);
+        }
+
+        .status.offline {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: rgba(244, 67, 54, 0.3);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success-color);
+            transition: var(--transition);
+        }
+
+        .status.offline .status-dot {
+            background: var(--error-color);
+        }
+
+        .status.online .status-dot {
+            animation: pulse 2s infinite;
+        }
+
+        .last-check {
+            font-size: 12px;
+            opacity: 0.8;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .controls {
+            flex: 1;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            align-content: start;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .control-btn {
+            background: var(--card-bg);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            min-height: 110px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            opacity: 1; /* Убираем animation opacity */
+        }
+
+        /* Анимация появления только при загрузке */
+        .control-btn.initial-load {
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        /* Группировка кнопок по типам для анимации */
+        /* Обычные кнопки (настройки, блокировка) */
+        .control-btn.initial-load:not(.warning):not(.danger):not(.info) { 
+            animation-delay: 0.5s; 
+        }
+        
+        /* Warning кнопки (сон, гибернация) */
+        .control-btn.initial-load.warning { 
+            animation-delay: 0.7s; 
+        }
+        
+        /* Danger кнопки (перезагрузка, выключение) */
+        .control-btn.initial-load.danger { 
+            animation-delay: 0.9s; 
+        }
+        
+        /* Info кнопка (планировщик) уже имеет свою анимацию через scheduler-wrapper */
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .control-btn:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .control-btn:not(:disabled):active {
+            transform: scale(0.95);
+        }
+
+        .control-btn:disabled {
+            cursor: not-allowed;
+            /* Убираем стили, которые могли скрывать кнопки */
+        }
+
+        .control-btn.danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+        }
+
+        .control-btn.warning {
+            background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+            color: white;
+        }
+
+        .control-btn.info {
+            background: linear-gradient(135deg, #48cae4 0%, #023e8a 100%);
+            color: white;
+            width: 100%; /* Занимает всю ширину контейнера */
+        }
+
+        .control-btn .icon {
+            font-size: 32px;
+            line-height: 1;
+            transition: var(--transition);
+        }
+
+        .control-btn:not(:disabled):hover .icon {
+            transform: scale(1.1);
+        }
+
+        .control-btn .label {
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Delay control styles */
+        .delay-control {
+            grid-column: 1 / -1;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.8s ease-out 0.3s backwards;
+        }
+
+        .delay-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Number input with custom steppers */
+        .number-input-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .number-input-wrapper input {
+            background: transparent;
+            border: none;
+            padding: 10px 40px 10px 16px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            width: 70px;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .number-input-wrapper input::-webkit-outer-spin-button,
+        .number-input-wrapper input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .number-input-wrapper input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .number-stepper {
+            position: absolute;
+            right: 2px;
+            top: 2px;
+            bottom: 2px;
+            display: flex;
+            flex-direction: column;
+            width: 24px;
+        }
+
+        .stepper-btn:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .stepper-btn:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .stepper-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .stepper-btn:active {
+            transform: scale(0.9);
+            background: var(--secondary-color);
+        }
+
+        /* Анимация для stepper кнопок */
+        .stepper-btn {
+            flex: 1;
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stepper-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+
+        .stepper-btn:active::before {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Schedule input steppers */
+        .schedule-input-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .schedule-input-wrapper input {
+            background: transparent;
+            border: none;
+            padding: 10px 30px 10px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            width: 80px;
+            text-align: center;
+            outline: none;
+        }
+
+        .schedule-input-wrapper input::-webkit-outer-spin-button,
+        .schedule-input-wrapper input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .schedule-input-wrapper .number-stepper {
+            width: 20px;
+            right: 2px;
+        }
+
+        .schedule-input-wrapper .stepper-btn {
+            font-size: 10px;
+        }
+
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin: 20px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: var(--shadow-hover);
+            transform: scale(0.8) translateY(20px);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .modal-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .countdown-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .countdown-timer {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: width 0.1s linear;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-btn.cancel {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .modal-btn.execute {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .modal-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Scheduler styles */
+        .scheduler-wrapper {
+            grid-column: 1 / -1;
+            height: var(--btn-height); /* Только кнопка видна изначально */
+            overflow: hidden;
+            position: relative;
+            transition: height 0.8s ease;
+            border-radius: var(--border-radius); /* Радиус для всего wrapper */
+            animation: fadeIn 0.8s ease-out 0.4s backwards;
+        }
+
+        .scheduler-container {
+            position: relative;
+            /* Высота контейнера определяется содержимым */
+        }
+
+        .scheduler {
+            background: var(--card-bg);
+            border-radius: var(--border-radius) var(--border-radius) 0 0; /* Только верхние углы скругленные */
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            position: relative;
+            width: 100%;
+            z-index: 1;
+            /* Высота определяется содержимым */
+        }
+
+        .scheduler-btn-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--btn-height);
+            z-index: 2;
+            transition: transform 0.8s ease;
+            background: var(--bg-gradient); /* Используем тот же градиент, что и для фона страницы */
+            border-radius: var(--border-radius); /* Радиус для контейнера кнопки */
+        }
+
+        .scheduler-btn-container .control-btn.info {
+            border-radius: var(--border-radius); /* Изначально все углы скругленные */
+            transition: border-radius 0.8s ease, transform 0.3s ease, box-shadow 0.3s ease; /* Добавляем анимацию для border-radius */
+        }
+
+        .scheduler-wrapper.active .scheduler-btn-container .control-btn.info {
+            border-radius: 0 0 var(--border-radius) var(--border-radius); /* При активации - только нижние углы скругленные */
+        }
+
+        .scheduler h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scheduler-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .form-select, .form-input, .time-input {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .form-select:focus, .form-input:focus, .time-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-select {
+            flex: 1;
+        }
+
+        .form-input {
+            width: 80px;
+            text-align: center;
+        }
+
+        .time-input {
+            width: 120px;
+            text-align: center;
+        }
+
+        .mode-toggle {
+            display: flex;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .mode-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .schedule-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .schedule-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .schedule-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Task list styles */
+        .task-section {
+            margin-bottom: 20px;
+        }
+
+        .task-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task-item {
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: var(--transition);
+        }
+
+        .task-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .task-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .task-command {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .task-timer {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .task-cancel {
+            background: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .task-cancel:hover {
+            background: #d32f2f;
+        }
+
+        .no-tasks {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* Settings panel */
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            z-index: 2000;
+            transition: var(--transition);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .settings-panel.active {
+            right: 0;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .close-settings {
+            background: none;
+            border: none;
+                font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 8px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .close-settings:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .setting-group {
+            margin-bottom: 30px;
+        }
+
+        .setting-group h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .setting-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .toggle-switch.active {
+            background: var(--primary-color);
+        }
+
+        .toggle-handle {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active .toggle-handle {
+            transform: translateX(26px);
+        }
+
+        .setting-input {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            width: 80px;
+            text-align: center;
+        }
+
+        .setting-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .setting-input.wide {
+            width: 150px;
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: var(--shadow-hover);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 3000;
+            transform: translateX(100%);
+            transition: var(--transition);
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .notification.warning {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--error-color);
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-icon {
+            font-size: 20px;
+        }
+
+        .notification-text {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 4px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .controls {
+                padding: 16px;
+                gap: 12px;
+            }
+            
+            .control-btn {
+                padding: 20px 12px;
+                min-height: 100px;
+            }
+            
+            .scheduler-btn-container {
+                height: 100px;
+            }
+
+            .scheduler-wrapper {
+                height: 100px;
+            }
+
+            .scheduler-container {
+                height: 100px;
+            }
+            
+            .control-btn .icon {
+                font-size: 28px;
+            }
+
+            .modal-content {
+                margin: 16px;
+                padding: 24px;
+            }
+
+            .countdown-timer {
+                font-size: 36px;
+            }
+
+            /* Улучшения для steppers на мобильных */
+            .number-input-wrapper input {
+                font-size: 14px;
+                padding: 8px 36px 8px 12px;
+                width: 65px;
+            }
+
+            .number-stepper {
+                width: 22px;
+            }
+            .notification {
+                margin-top: env(safe-area-inset-top);
+            }
+            .settings-panel {
+                margin-top: env(safe-area-inset-top);
+                max-width: 100%;
+            }
+            .stepper-btn {
+                font-size: 10px;
+                min-height: 16px;
+            }
+
+            .schedule-input-wrapper input {
+                font-size: 12px;
+                padding: 8px 26px 8px 8px;
+                width: 70px;
+            }
+
+            .schedule-input-wrapper .number-stepper {
+                width: 18px;
+            }
+
+            .schedule-input-wrapper .stepper-btn {
+                font-size: 8px;
+                min-height: 14px;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Haptic feedback indicator */
+        .haptic-feedback {
+            animation: hapticPulse 0.1s ease;
+        }
+
+        @keyframes hapticPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+        }
+
+        /* Анимация появления страницы */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .delay-control {
+            animation: fadeIn 0.8s ease-out 0.3s backwards;
+        }
+
+        .scheduler-wrapper {
+            animation: fadeIn 0.8s ease-out 0.4s backwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>💻 PC Control Pro</h1>
+        <div class="status-container">
+        <div class="status" id="status">
+            <span class="status-dot"></span>
+                <span id="statusText">Подключение...</span>
+            </div>
+            <div class="last-check" id="lastCheck"></div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <!-- Delay Control -->
+        <div class="delay-control">
+            <span class="delay-label">
+                ⏱️ Задержка
+            </span>
+            <div class="number-input-wrapper">
+                <input type="number" id="delay" value="3" min="0" max="300">
+                <div class="number-stepper">
+                    <button class="stepper-btn" onclick="adjustDelay(1)" type="button">▲</button>
+                    <button class="stepper-btn" onclick="adjustDelay(-1)" type="button">▼</button>
+                </div>
+            </div>
+            <span style="font-size: 12px; color: var(--text-secondary);">сек</span>
+        </div>
+
+        <!-- Scheduler Wrapper -->
+        <div class="scheduler-wrapper" id="schedulerWrapper">
+            <div class="scheduler-container">
+                <!-- Scheduler Content -->
+                <div class="scheduler" id="scheduler">
+                    <h3>📅 Планировщик команд</h3>
+                    <div class="scheduler-form">
+                        <div class="form-row">
+                            <select id="scheduleCommand" class="form-select">
+                                <option value="lock">🔒 Блокировка</option>
+                                <option value="sleep">😴 Сон</option>
+                                <option value="hibernate">🛌 Гибернация</option>
+                                <option value="restart">🔄 Перезагрузка</option>
+                                <option value="shutdown">⚡ Выключение</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="mode-toggle">
+                                <button class="mode-btn active" id="delayMode" onclick="switchMode('delay')">Через</button>
+                                <button class="mode-btn" id="timeMode" onclick="switchMode('time')">В</button>
+                            </div>
+                        </div>
+                        <div class="form-row" id="delayRow">
+                            <span style="font-size: 14px; color: var(--text-primary);">через</span>
+                            <div class="schedule-input-wrapper">
+                                <input type="number" id="scheduleDelay" value="60" min="1" max="86400">
+                                <div class="number-stepper">
+                                    <button class="stepper-btn" onclick="adjustScheduleDelay(1)" type="button">▲</button>
+                                    <button class="stepper-btn" onclick="adjustScheduleDelay(-1)" type="button">▼</button>
+                                </div>
+                            </div>
+                            <span style="font-size: 14px; color: var(--text-primary);">сек</span>
+                            <button class="schedule-btn" onclick="scheduleCommand()">Запланировать</button>
+                        </div>
+                        <div class="form-row" id="timeRow" style="display: none;">
+                            <span style="font-size: 14px; color: var(--text-primary);">в</span>
+                            <input type="time" id="scheduleTime" class="time-input">
+                            <label style="font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px;">
+                                <input type="checkbox" id="nextDay" style="margin: 0;">
+                                завтра
+                            </label>
+                            <button class="schedule-btn" onclick="scheduleCommand()">Запланировать</button>
+                        </div>
+                    </div>
+
+                    <!-- Immediate Tasks -->
+                    <div class="task-section" id="immediateTasksSection" style="display: none;">
+                        <h4>⚡ Выполняются сейчас</h4>
+                        <div class="task-list" id="immediateTasks"></div>
+                    </div>
+
+                    <!-- Scheduled Tasks -->
+                    <div class="task-section" id="scheduledTasksSection" style="display: none;">
+                        <h4>📅 Запланированные</h4>
+                        <div class="task-list" id="scheduledTasks"></div>
+                    </div>
+
+                    <div class="no-tasks" id="noTasks">Нет активных команд</div>
+                </div>
+                
+                <!-- Scheduler Button Container -->
+                <div class="scheduler-btn-container">
+                    <button class="control-btn info" onclick="toggleScheduler()" id="schedulerBtn">
+                        <span class="icon">📅</span>
+                        <span class="label">Планировщик</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Buttons -->
+        <button class="control-btn" onclick="showSettings()" id="settingsBtn">
+            <span class="icon">⚙️</span>
+            <span class="label">Настройки</span>
+        </button>
+
+        <button class="control-btn" onclick="executeCommand('lock')" id="lockBtn">
+            <span class="icon">🔒</span>
+            <span class="label">Блокировка</span>
+        </button>
+
+        <button class="control-btn warning" onclick="executeCommand('sleep')" id="sleepBtn">
+            <span class="icon">😴</span>
+            <span class="label">Сон</span>
+        </button>
+
+        <button class="control-btn warning" onclick="executeCommand('hibernate')" id="hibernateBtn">
+            <span class="icon">🛌</span>
+            <span class="label">Гибернация</span>
+        </button>
+
+        <button class="control-btn danger" onclick="executeCommand('restart')" id="restartBtn">
+            <span class="icon">🔄</span>
+            <span class="label">Перезагрузка</span>
+        </button>
+
+        <button class="control-btn danger" onclick="executeCommand('shutdown')" id="shutdownBtn">
+            <span class="icon">⚡</span>
+            <span class="label">Выключение</span>
+        </button>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Подтверждение</div>
+                <div class="modal-description" id="modalDescription">Операция будет выполнена</div>
+            </div>
+            <div class="countdown-container">
+                <div class="countdown-timer" id="countdownTimer">5</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="cancelOperation()">Отменить</button>
+                <button class="modal-btn execute" onclick="executeNow()">Выполнить сейчас</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <div class="settings-title">⚙️ Настройки</div>
+            <button class="close-settings" onclick="hideSettings()">✕</button>
+    </div>
+
+        <div class="setting-group">
+            <h3>🔔 Уведомления</h3>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Push-уведомления</div>
+                    <div class="setting-description">Браузерные уведомления</div>
+                </div>
+                <div class="toggle-switch" id="notificationsToggle" onclick="toggleSetting('notifications')">
+                    <div class="toggle-handle"></div>
+                </div>
+            </div>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Звуковые сигналы</div>
+                    <div class="setting-description">Звук при операциях</div>
+                </div>
+                <div class="toggle-switch" id="soundToggle" onclick="toggleSetting('sound')">
+                    <div class="toggle-handle"></div>
+                </div>
+            </div>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Вибрация</div>
+                    <div class="setting-description">Haptic feedback</div>
+                </div>
+                <div class="toggle-switch active" id="hapticToggle" onclick="toggleSetting('haptic')">
+                    <div class="toggle-handle"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <h3>⏱️ Таймеры</h3>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Интервал проверки</div>
+                    <div class="setting-description">Проверка статуса ПК (мин. 15 сек)</div>
+                </div>
+                <input type="number" class="setting-input" id="statusInterval" value="15" min="15" max="60">
+            </div>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Обновление задач</div>
+                    <div class="setting-description">Обновление списка (мин. 5 сек)</div>
+                </div>
+                <input type="number" class="setting-input" id="tasksInterval" value="5" min="5" max="30">
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <h3>🌐 Сеть</h3>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Адрес сервера</div>
+                    <div class="setting-description">IP:Port вашего ПК (если отличается от автоопределения)</div>
+                </div>
+                <input type="text" class="setting-input wide" id="serverAddress" placeholder="192.168.1.55:8000">
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        class Config {
+            static defaults = {
+                notifications: true,
+                sound: true,
+                haptic: true,
+                statusInterval: 15,  // Увеличиваем интервал по умолчанию
+                tasksInterval: 5,    // Увеличиваем интервал обновления задач
+                serverAddress: ''
+            };
+
+            static load() {
+                const config = { ...this.defaults };
+                Object.keys(config).forEach(key => {
+                    const stored = localStorage.getItem(`pccontrol_${key}`);
+                    if (stored !== null) {
+                        config[key] = stored === 'true' ? true : stored === 'false' ? false : stored;
+                    }
+                });
+                return config;
+            }
+
+            static save(key, value) {
+                localStorage.setItem(`pccontrol_${key}`, value);
+            }
+
+            static get(key) {
+                return this.load()[key];
+            }
+        }
+
+        // ==================== CORE APP CLASS ====================
+        class PCControlApp {
+            constructor() {
+                this.config = Config.load();
+                this.serverAddress = this.determineServerAddress();
+                this.baseUrl = `http://${this.serverAddress}`;
+                this.isServerOnline = false;
+                this.schedulerVisible = false;
+                this.activeTasks = [];
+                this.intervals = {};
+                this.currentOperation = null;
+                this.notificationPermission = 'default';
+                this.optimizedFetch = this.createOptimizedFetch(); // Инициализируем сразу
+                
+                this.init();
+            }
+
+            // ==================== INITIALIZATION ====================
+            init() {
+                this.setupEventListeners();
+                this.loadSettings();
+                this.requestNotificationPermission();
+                this.registerServiceWorker();
+                this.startStatusChecking();
+                this.setCurrentTime();
+                this.initializeButtonAnimations();
+                
+                console.log('🚀 PC Control Pro инициализирован');
+                console.log('📡 Сервер:', this.baseUrl);
+                console.log('🔧 Отладка: открой', `${this.baseUrl}/debug`, 'для диагностики');
+                console.log('⏱️ Интервалы: статус каждые', Config.get('statusInterval'), 'сек, задачи каждые', Config.get('tasksInterval'), 'сек');
+                console.log('🌐 Оптимизация: включен keep-alive для переиспользования соединений');
+                
+                // Показываем приветственное сообщение при первом запуске
+                if (!localStorage.getItem('pccontrol_welcomed')) {
+                    setTimeout(() => {
+                        this.showNotification(
+                            'Добро пожаловать!', 
+                            'PC Control Pro готов к работе. Убедитесь, что Python-сервер запущен.', 
+                            'info'
+                        );
+                        localStorage.setItem('pccontrol_welcomed', 'true');
+                    }, 2000);
+                }
+            }
+
+            initializeButtonAnimations() {
+                // Добавляем класс для анимации только при загрузке
+                const buttons = document.querySelectorAll('.control-btn');
+                buttons.forEach((btn, index) => {
+                    btn.classList.add('initial-load');
+                    // Убираем класс после завершения анимации
+                    setTimeout(() => {
+                        btn.classList.remove('initial-load');
+                    }, 600 + (index * 100) + 100);
+                });
+
+                // Добавляем haptic feedback для stepper кнопок после загрузки
+                setTimeout(() => {
+                    document.querySelectorAll('.stepper-btn').forEach(btn => {
+                        btn.addEventListener('touchstart', () => this.hapticFeedback());
+                        btn.addEventListener('click', () => this.hapticFeedback());
+                    });
+                }, 100);
+            }
+
+            determineServerAddress() {
+                if (window.location.hostname && 
+                    window.location.hostname !== 'localhost' && 
+                    window.location.hostname !== '127.0.0.1') {
+                    return `${window.location.hostname}:${window.location.port || 8000}`;
+                }
+                return this.config.serverAddress || '192.168.1.55:8000';
+            }
+
+            setupEventListeners() {
+                // Settings input changes with validation
+                document.getElementById('statusInterval').addEventListener('change', (e) => {
+                    const value = Math.max(15, parseInt(e.target.value)); // Минимум 15 секунд
+                    e.target.value = value;
+                    Config.save('statusInterval', value);
+                    this.restartStatusChecking();
+                });
+
+                document.getElementById('tasksInterval').addEventListener('change', (e) => {
+                    const value = Math.max(5, parseInt(e.target.value)); // Минимум 5 секунд
+                    e.target.value = value;
+                    Config.save('tasksInterval', value);
+                    if (this.schedulerVisible) {
+                        this.restartTasksUpdate();
+                    }
+                });
+
+                document.getElementById('serverAddress').addEventListener('change', (e) => {
+                    Config.save('serverAddress', e.target.value);
+                    this.serverAddress = e.target.value || this.determineServerAddress();
+                    this.baseUrl = `http://${this.serverAddress}`;
+                    this.checkStatus();
+                });
+
+                // Add haptic feedback to all interactive elements
+                document.querySelectorAll('.control-btn, .modal-btn, .schedule-btn, .stepper-btn').forEach(btn => {
+                    btn.addEventListener('touchstart', () => this.hapticFeedback());
+                    btn.addEventListener('click', () => this.hapticFeedback());
+                });
+            }
+
+            loadSettings() {
+                // Load toggle states
+                ['notifications', 'sound', 'haptic'].forEach(setting => {
+                    const toggle = document.getElementById(`${setting}Toggle`);
+                    const value = Config.get(setting);
+                    toggle.classList.toggle('active', value);
+                });
+
+                // Load input values with new defaults
+                document.getElementById('statusInterval').value = Config.get('statusInterval');
+                document.getElementById('tasksInterval').value = Config.get('tasksInterval');
+                document.getElementById('serverAddress').value = Config.get('serverAddress');
+                
+                // Ensure minimum values
+                const statusInterval = parseInt(document.getElementById('statusInterval').value);
+                const tasksInterval = parseInt(document.getElementById('tasksInterval').value);
+                
+                if (statusInterval < 15) {
+                    document.getElementById('statusInterval').value = 15;
+                    Config.save('statusInterval', 15);
+                }
+                
+                if (tasksInterval < 5) {
+                    document.getElementById('tasksInterval').value = 5;
+                    Config.save('tasksInterval', 5);
+                }
+            }
+
+            // ==================== NOTIFICATIONS ====================
+            async requestNotificationPermission() {
+                if ('Notification' in window) {
+                    this.notificationPermission = await Notification.requestPermission();
+                }
+            }
+
+            showNotification(title, body, type = 'info') {
+                // Browser notification
+                if (Config.get('notifications') && this.notificationPermission === 'granted') {
+                    const notification = new Notification(title, {
+                        body,
+                        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23667eea"/><text y="70" x="50" text-anchor="middle" font-size="60" fill="white">💻</text></svg>',
+                        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23667eea"/><text y="70" x="50" text-anchor="middle" font-size="60" fill="white">💻</text></svg>',
+                        tag: 'pc-control'
+                    });
+
+                    setTimeout(() => notification.close(), 5000);
+                }
+
+                // In-app notification
+                this.showInAppNotification(title, body, type);
+
+                // Sound feedback
+                if (Config.get('sound')) {
+                    this.playSound(type);
+                }
+            }
+
+            showInAppNotification(title, body, type) {
+                const container = document.getElementById('notificationContainer');
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                const icons = {
+                    success: '✅',
+                    warning: '⚠️',
+                    error: '❌',
+                    info: 'ℹ️'
+                };
+
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <span class="notification-icon">${icons[type] || icons.info}</span>
+                        <div class="notification-text">
+                            <strong>${title}</strong><br>
+                            ${body}
+                        </div>
+                        <button class="notification-close" onclick="this.parentElement.parentElement.remove()">✕</button>
+                    </div>
+                `;
+
+                container.appendChild(notification);
+                
+                // Show with animation
+                setTimeout(() => notification.classList.add('show'), 100);
+                
+                // Auto remove
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }, 5000);
+            }
+
+            playSound(type) {
+                const frequencies = {
+                    success: 800,
+                    warning: 600,
+                    error: 400,
+                    info: 500
+                };
+
+                const frequency = frequencies[type] || frequencies.info;
+                
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.frequency.value = frequency;
+                    oscillator.type = 'sine';
+
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                } catch (error) {
+                    console.log('Sound not supported:', error);
+                }
+            }
+
+            hapticFeedback() {
+                if (!Config.get('haptic')) return;
+
+                // Vibration API
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+
+                // Visual feedback
+                if (event && event.target) {
+                    event.target.classList.add('haptic-feedback');
+                    setTimeout(() => event.target.classList.remove('haptic-feedback'), 100);
+                }
+            }
+
+            // ==================== HTTP OPTIMIZATION ====================
+            createOptimizedFetch() {
+                // Создаем оптимизированный fetch с keep-alive
+                return (url, options = {}) => {
+                    const defaultOptions = {
+                        cache: 'no-store',
+                        headers: {
+                            'Cache-Control': 'no-cache',
+                            'Connection': 'keep-alive',
+                            'Keep-Alive': 'timeout=30, max=1000',
+                            ...options.headers
+                        },
+                        ...options
+                    };
+                    
+                    return fetch(url, defaultOptions);
+                };
+            }
+
+            // ==================== STATUS MONITORING ====================
+            startStatusChecking() {
+                this.checkStatus();
+                
+                // Увеличиваем минимальный интервал до 15 секунд
+                const interval = Math.max(15, Config.get('statusInterval'));
+                this.intervals.status = setInterval(() => {
+                    this.checkStatus();
+                }, interval * 1000);
+            }
+
+            restartStatusChecking() {
+                clearInterval(this.intervals.status);
+                this.startStatusChecking();
+            }
+
+            async checkStatus() {
+                const statusEl = document.getElementById('status');
+                const statusTextEl = document.getElementById('statusText');
+                const lastCheckEl = document.getElementById('lastCheck');
+                
+                try {
+                    const response = await this.optimizedFetch(`${this.baseUrl}/status`, {
+                        method: 'GET',
+                        signal: AbortSignal.timeout(8000) // Увеличиваем timeout
+                    });
+
+                    if (response.ok) {
+                        if (!this.isServerOnline) {
+                            this.showNotification('ПК подключен', 'Соединение с компьютером восстановлено', 'success');
+                        }
+                        
+                        this.isServerOnline = true;
+                        statusEl.className = 'status online';
+                        statusTextEl.textContent = 'ПК Онлайн';
+                        
+                        // Enable all buttons EXCEPT settings (settings should always be available)
+                        this.setButtonsState(true);
+                        
+                        // Update tasks if scheduler is open
+                        if (this.schedulerVisible) {
+                            this.fetchActiveTasks();
+                        }
+                    } else {
+                        throw new Error('Server error');
+                    }
+                } catch (error) {
+                    if (this.isServerOnline) {
+                        this.showNotification('ПК недоступен', 'Соединение с компьютером потеряно', 'error');
+                    }
+                    
+                    this.isServerOnline = false;
+                    statusEl.className = 'status offline';
+                    statusTextEl.textContent = 'ПК Офлайн';
+                    
+                    // Disable buttons except settings and scheduler
+                    this.setButtonsState(false);
+                    
+                    // Clear tasks
+                    this.activeTasks = [];
+                    this.renderTasks();
+                }
+                
+                // Update last check time
+                const now = new Date();
+                lastCheckEl.textContent = `Обновлено: ${now.toLocaleTimeString()}`;
+            }
+
+            setButtonsState(enabled) {
+                // These buttons should be disabled when offline
+                const commandButtons = ['lockBtn', 'sleepBtn', 'hibernateBtn', 'restartBtn', 'shutdownBtn'];
+                commandButtons.forEach(id => {
+                    const btn = document.getElementById(id);
+                    if (btn) {
+                        btn.disabled = !enabled;
+                        // Добавляем визуальное обозначение недоступности
+                        if (enabled) {
+                            btn.style.opacity = '';
+                            btn.style.filter = '';
+                            btn.style.pointerEvents = '';
+                        } else {
+                            btn.style.opacity = '0.5';
+                            btn.style.filter = 'grayscale(0.5)';
+                            btn.style.pointerEvents = 'none';
+                        }
+                    }
+                });
+
+                // Scheduler button should be disabled when offline, but can be opened for viewing
+                const schedulerBtn = document.getElementById('schedulerBtn');
+                if (schedulerBtn) {
+                    schedulerBtn.disabled = !enabled;
+                    if (enabled) {
+                        schedulerBtn.style.opacity = '';
+                        schedulerBtn.style.filter = '';
+                        schedulerBtn.style.pointerEvents = '';
+            } else {
+                        schedulerBtn.style.opacity = '0.7';
+                        schedulerBtn.style.filter = 'grayscale(0.3)';
+                        schedulerBtn.style.pointerEvents = 'auto'; // Можно открыть для просмотра
+                    }
+                }
+
+                // Settings button should ALWAYS be enabled
+                const settingsBtn = document.getElementById('settingsBtn');
+                if (settingsBtn) {
+                    settingsBtn.disabled = false;
+                    settingsBtn.style.opacity = '';
+                    settingsBtn.style.filter = '';
+                    settingsBtn.style.pointerEvents = '';
+                }
+            }
+
+            // ==================== COMMAND EXECUTION ====================
+            executeCommand(command) {
+                if (!this.isServerOnline) {
+                    this.showNotification('Ошибка', 'ПК недоступен', 'error');
+                    return;
+                }
+                
+                const delay = parseInt(document.getElementById('delay').value) || 0;
+                const commandInfo = this.getCommandInfo(command);
+                
+                // Показываем модальное окно подтверждения, где таймер = задержка
+                this.showConfirmationModal(command, commandInfo, delay);
+            }
+
+            getCommandInfo(command) {
+                const commands = {
+                    shutdown: { name: 'Выключение', icon: '⚡', description: 'ПК будет выключен' },
+                    restart: { name: 'Перезагрузка', icon: '🔄', description: 'ПК будет перезагружен' },
+                    sleep: { name: 'Сон', icon: '😴', description: 'ПК перейдет в режим сна' },
+                    hibernate: { name: 'Гибернация', icon: '🛌', description: 'ПК перейдет в режим гибернации' },
+                    lock: { name: 'Блокировка', icon: '🔒', description: 'ПК будет заблокирован' }
+                };
+                return commands[command] || { name: command, icon: '❓', description: 'Операция будет выполнена' };
+            }
+
+            showConfirmationModal(command, commandInfo, delay) {
+                const modal = document.getElementById('confirmModal');
+                const titleEl = document.getElementById('modalTitle');
+                const descriptionEl = document.getElementById('modalDescription');
+                const timerEl = document.getElementById('countdownTimer');
+                const progressEl = document.getElementById('progressFill');
+
+                titleEl.textContent = `${commandInfo.icon} ${commandInfo.name}`;
+                
+                if (delay > 0) {
+                    descriptionEl.textContent = `${commandInfo.description} через ${delay} секунд`;
+                } else {
+                    descriptionEl.textContent = `${commandInfo.description} немедленно`;
+                }
+                
+                // Таймер равен задержке, минимум 3 секунды для возможности отмены
+                let countdownValue = Math.max(delay, 3);
+                const totalTime = countdownValue;
+                
+                timerEl.textContent = countdownValue;
+                progressEl.style.width = '100%';
+                
+                modal.classList.add('active');
+                
+                this.currentOperation = {
+                    command,
+                    delay,
+                    totalTime,
+                    countdown: countdownValue,
+                    interval: setInterval(() => {
+                        countdownValue--;
+                        timerEl.textContent = countdownValue;
+                        progressEl.style.width = `${(countdownValue / totalTime) * 100}%`;
+                        
+                        // Warning notifications
+                        if ([15, 5, 1].includes(countdownValue)) {
+                            this.showNotification(
+                                'Предупреждение', 
+                                `${commandInfo.name} через ${countdownValue} ${this.getTimeUnit(countdownValue)}`,
+                                'warning'
+                            );
+                        }
+                        
+                        if (countdownValue <= 0) {
+                            this.executeNow();
+                        }
+                    }, 1000)
+                };
+            }
+
+            getTimeUnit(seconds) {
+                if (seconds === 1) return 'секунду';
+                if (seconds < 5) return 'секунды';
+                return 'секунд';
+            }
+
+            cancelOperation() {
+                if (this.currentOperation) {
+                    clearInterval(this.currentOperation.interval);
+                    this.currentOperation = null;
+                }
+                document.getElementById('confirmModal').classList.remove('active');
+                this.showNotification('Операция отменена', 'Команда была отменена пользователем', 'info');
+            }
+
+            executeNow() {
+                if (this.currentOperation) {
+                    const { command, delay } = this.currentOperation;
+                    clearInterval(this.currentOperation.interval);
+                    this.currentOperation = null;
+                    document.getElementById('confirmModal').classList.remove('active');
+                    
+                    // Выполняем команду с первоначальной задержкой (или 0 для немедленного выполнения)
+                    this.executeCommandDirectly(command, delay);
+                }
+            }
+
+            async executeCommandDirectly(command, delay) {
+                try {
+                    let url = `${this.baseUrl}/${command}`;
+                    if (delay > 0) url += `?delay=${delay}`;
+
+                    const response = await this.optimizedFetch(url, {
+                        signal: AbortSignal.timeout(15000) // Увеличиваем timeout для команд
+                    });
+                    
+                const data = await response.json();
+
+                if (response.ok) {
+                        const commandInfo = this.getCommandInfo(command);
+                        this.showNotification(
+                            'Команда выполнена',
+                            data.message || `${commandInfo.name} ${delay > 0 ? 'запланирована' : 'выполняется'}`,
+                            'success'
+                        );
+                        
+                        if (this.schedulerVisible) {
+                            setTimeout(() => this.fetchActiveTasks(), 500);
+                    }
+                } else {
+                        throw new Error(data.message || 'Ошибка выполнения');
+                }
+            } catch (error) {
+                    this.showNotification('Ошибка', error.message || 'Не удалось выполнить команду', 'error');
+                }
+            }
+
+            // ==================== SCHEDULER ====================
+            toggleScheduler() {
+                this.schedulerVisible = !this.schedulerVisible;
+                const schedulerWrapperEl = document.getElementById('schedulerWrapper');
+                const schedulerEl = document.getElementById('scheduler');
+                const btnContainerEl = schedulerWrapperEl.querySelector('.scheduler-btn-container');
+                
+                if (this.schedulerVisible) {
+                    // Получаем высоту содержимого планировщика
+                    const schedulerHeight = schedulerEl.offsetHeight;
+                    const btnHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--btn-height'));
+                    
+                    // Устанавливаем высоту wrapper равной сумме высоты содержимого и кнопки
+                    schedulerWrapperEl.style.height = `${schedulerHeight + btnHeight}px`;
+                    
+                    // Перемещаем кнопку под содержимое
+                    btnContainerEl.style.transform = `translateY(${schedulerHeight}px)`;
+                    
+                    // Добавляем класс active для других стилей
+                    schedulerWrapperEl.classList.add('active');
+                    
+                    if (this.isServerOnline) {
+                        this.fetchActiveTasks();
+                        this.startTasksUpdate();
+                    }
+                } else {
+                    // Возвращаем начальное состояние
+                    schedulerWrapperEl.style.height = '';
+                    btnContainerEl.style.transform = '';
+                    schedulerWrapperEl.classList.remove('active');
+                    this.stopTasksUpdate();
+                }
+            }
+            
+            // Функция для обновления высоты планировщика при добавлении/удалении задач
+            updateSchedulerHeight() {
+                if (this.schedulerVisible) {
+                    const schedulerWrapperEl = document.getElementById('schedulerWrapper');
+                    const schedulerEl = document.getElementById('scheduler');
+                    const btnContainerEl = schedulerWrapperEl.querySelector('.scheduler-btn-container');
+                    
+                    // Получаем актуальную высоту содержимого
+                    const schedulerHeight = schedulerEl.offsetHeight;
+                    const btnHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--btn-height'));
+                    
+                    // Обновляем высоту wrapper и позицию кнопки
+                    schedulerWrapperEl.style.height = `${schedulerHeight + btnHeight}px`;
+                    btnContainerEl.style.transform = `translateY(${schedulerHeight}px)`;
+                }
+            }
+            
+            startTasksUpdate() {
+                // Увеличиваем минимальный интервал до 5 секунд
+                const interval = Math.max(5, Config.get('tasksInterval'));
+                this.intervals.tasks = setInterval(() => {
+                    if (this.isServerOnline) {
+                        this.fetchActiveTasks();
+                    }
+                }, interval * 1000);
+            }
+
+            stopTasksUpdate() {
+                clearInterval(this.intervals.tasks);
+            }
+
+            restartTasksUpdate() {
+                this.stopTasksUpdate();
+                if (this.schedulerVisible && this.isServerOnline) {
+                    this.startTasksUpdate();
+                }
+            }
+            
+            // Обновляем существующие методы, чтобы вызывать updateSchedulerHeight
+            async fetchActiveTasks() {
+                if (!this.isServerOnline) {
+                    this.activeTasks = [];
+                    this.renderTasks();
+                    return;
+                }
+                
+                try {
+                    const response = await this.optimizedFetch(`${this.baseUrl}/active_tasks`, {
+                        method: 'GET',
+                        signal: AbortSignal.timeout(8000)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Проверяем статус в ответе
+                        if (data.status === 'success') {
+                            this.activeTasks = data.active_tasks || [];
+                        } else {
+                            console.warn('Server returned error status:', data.message);
+                            this.activeTasks = [];
+                        }
+                        
+                        this.renderTasks();
+                        // Обновляем высоту после рендеринга задач
+                        setTimeout(() => this.updateSchedulerHeight(), 10);
+                    } else {
+                        // Логируем ошибку, но не показываем пользователю
+                        console.error(`Server error ${response.status}: ${response.statusText}`);
+                        
+                        // Пытаемся получить JSON с ошибкой
+                        try {
+                            const errorData = await response.json();
+                            console.error('Server error details:', errorData.message);
+                        } catch (e) {
+                            console.error('Could not parse error response');
+                        }
+                        
+                        this.activeTasks = [];
+                        this.renderTasks();
+                        setTimeout(() => this.updateSchedulerHeight(), 10);
+                    }
+                } catch (error) {
+                    console.error('Network error fetching tasks:', error.message);
+                    this.activeTasks = [];
+                    this.renderTasks();
+                    setTimeout(() => this.updateSchedulerHeight(), 10);
+                    
+                    // Показываем ошибку только если это не timeout или network error
+                    if (!error.message.includes('timeout') && !error.message.includes('fetch')) {
+                        this.showNotification('Ошибка', 'Проблема с получением списка задач', 'warning');
+                    }
+                }
+            }
+
+            renderTasks() {
+                const immediateSection = document.getElementById('immediateTasksSection');
+                const scheduledSection = document.getElementById('scheduledTasksSection');
+                const immediateList = document.getElementById('immediateTasks');
+                const scheduledList = document.getElementById('scheduledTasks');
+                const noTasksEl = document.getElementById('noTasks');
+
+                // Clear lists
+                immediateList.innerHTML = '';
+                scheduledList.innerHTML = '';
+
+                if (this.activeTasks.length === 0) {
+                    immediateSection.style.display = 'none';
+                    scheduledSection.style.display = 'none';
+                    noTasksEl.style.display = 'block';
+                    return;
+                }
+
+                noTasksEl.style.display = 'none';
+
+                // Separate immediate and scheduled tasks
+                const immediateTasks = this.activeTasks.filter(task => task.remaining_seconds <= 30);
+                const scheduledTasks = this.activeTasks.filter(task => task.remaining_seconds > 30);
+
+                // Render immediate tasks
+                if (immediateTasks.length > 0) {
+                    immediateSection.style.display = 'block';
+                    immediateTasks.forEach(task => {
+                        immediateList.appendChild(this.createTaskElement(task));
+                    });
+                } else {
+                    immediateSection.style.display = 'none';
+                }
+
+                // Render scheduled tasks
+                if (scheduledTasks.length > 0) {
+                    scheduledSection.style.display = 'block';
+                    scheduledTasks.forEach(task => {
+                        scheduledList.appendChild(this.createTaskElement(task));
+                    });
+                } else {
+                    scheduledSection.style.display = 'none';
+                }
+            }
+
+            createTaskElement(task) {
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+                
+                const commandInfo = this.getCommandInfo(task.command);
+                const timeText = this.formatTime(task.remaining_seconds);
+                const executeTime = new Date(Date.now() + task.remaining_seconds * 1000);
+                const isToday = executeTime.toDateString() === new Date().toDateString();
+                const timeString = executeTime.toLocaleTimeString('ru-RU', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                const datePrefix = isToday ? '' : 'завтра ';
+                
+                taskItem.innerHTML = `
+                    <div class="task-info">
+                        <div class="task-command">${commandInfo.icon} ${commandInfo.name}</div>
+                        <div class="task-timer">Выполнится ${datePrefix}в ${timeString} (через ${timeText})</div>
+                    </div>
+                    <button class="task-cancel" onclick="app.cancelTask('${task.task_id}')">Отмена</button>
+                `;
+                
+                return taskItem;
+            }
+
+            formatTime(seconds) {
+                if (seconds >= 3600) {
+                    const hours = Math.floor(seconds / 3600);
+                    const minutes = Math.floor((seconds % 3600) / 60);
+                    return `${hours}ч ${minutes}м`;
+                } else if (seconds >= 60) {
+                    const minutes = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    return `${minutes}м ${secs}с`;
+                } else {
+                    return `${seconds}с`;
+                }
+            }
+
+            async cancelTask(taskId) {
+                if (!this.isServerOnline) {
+                    this.showNotification('Ошибка', 'ПК недоступен', 'error');
+                    return;
+                }
+                
+                try {
+                    const response = await this.optimizedFetch(`${this.baseUrl}/cancel/${taskId}`, {
+                        signal: AbortSignal.timeout(8000)
+                    });
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        this.showNotification('Задача отменена', data.message || 'Команда была отменена', 'success');
+                        setTimeout(() => this.fetchActiveTasks(), 300);
+            } else {
+                        throw new Error(data.message || 'Ошибка отмены');
+                    }
+                } catch (error) {
+                    this.showNotification('Ошибка', error.message || 'Не удалось отменить команду', 'error');
+                }
+            }
+
+            async scheduleCommand() {
+                if (!this.isServerOnline) {
+                    this.showNotification('Ошибка', 'ПК недоступен', 'error');
+                    return;
+                }
+
+                const command = document.getElementById('scheduleCommand').value;
+                const currentMode = document.querySelector('.mode-btn.active').id === 'delayMode' ? 'delay' : 'time';
+                
+                let delay;
+                let confirmMessage;
+                
+                if (currentMode === 'delay') {
+                    delay = parseInt(document.getElementById('scheduleDelay').value);
+                    confirmMessage = `${delay} секунд`;
+            } else {
+                    const targetTime = document.getElementById('scheduleTime').value;
+                    const nextDay = document.getElementById('nextDay').checked;
+                    
+                    if (!targetTime) {
+                        this.showNotification('Ошибка', 'Укажите время выполнения', 'error');
+                        return;
+                    }
+                    
+                    delay = this.calculateDelayFromTime(targetTime, nextDay);
+                    if (delay <= 0) {
+                        this.showNotification('Ошибка', 'Указанное время уже прошло', 'error');
+                        return;
+                    }
+                    
+                    const hours = Math.floor(delay / 3600);
+                    const minutes = Math.floor((delay % 3600) / 60);
+                    const dayText = nextDay ? ' завтра' : '';
+                    
+                    if (hours > 0) {
+                        confirmMessage = `${hours}ч ${minutes}м (в ${targetTime}${dayText})`;
+                    } else {
+                        confirmMessage = `${minutes}м ${delay % 60}с (в ${targetTime}${dayText})`;
+                    }
+                }
+                
+                // Confirmation for critical commands
+                if (['shutdown', 'restart'].includes(command)) {
+                    const action = command === 'shutdown' ? 'выключить' : 'перезагрузить';
+                    if (!confirm(`Вы уверены, что хотите запланировать ${action} компьютера через ${confirmMessage}?`)) {
+                        return;
+                    }
+                }
+
+                try {
+                    const response = await this.optimizedFetch(`${this.baseUrl}/${command}?delay=${delay}`, {
+                        signal: AbortSignal.timeout(15000)
+                    });
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        const commandInfo = this.getCommandInfo(command);
+                        this.showNotification(
+                            'Команда запланирована',
+                            `${commandInfo.name} через ${confirmMessage}`,
+                            'success'
+                        );
+                        setTimeout(() => this.fetchActiveTasks(), 500);
+                    } else {
+                        throw new Error(data.message || 'Ошибка планирования');
+                    }
+                } catch (error) {
+                    this.showNotification('Ошибка', error.message || 'Не удалось запланировать команду', 'error');
+                }
+            }
+
+            calculateDelayFromTime(targetTime, forceNextDay = false) {
+                const now = new Date();
+                const [hours, minutes] = targetTime.split(':').map(Number);
+                
+                let target = new Date();
+                target.setHours(hours, minutes, 0, 0);
+                
+                if (target <= now || forceNextDay) {
+                    target.setDate(target.getDate() + 1);
+                }
+                
+                return Math.floor((target - now) / 1000);
+            }
+
+            setCurrentTime() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                document.getElementById('scheduleTime').value = `${hours}:${minutes}`;
+            }
+
+            // ==================== SETTINGS ====================
+            showSettings() {
+                document.getElementById('settingsPanel').classList.add('active');
+                document.body.style.background = getComputedStyle(document.documentElement).getPropertyValue('--card-bg');
+            }
+
+
+            hideSettings() {
+                document.getElementById('settingsPanel').classList.remove('active');
+                document.body.style.background = getComputedStyle(document.documentElement).getPropertyValue('--bg-gradient');
+            }
+
+            toggleSetting(setting) {
+                const toggle = document.getElementById(`${setting}Toggle`);
+                const isActive = toggle.classList.contains('active');
+                
+                toggle.classList.toggle('active', !isActive);
+                Config.save(setting, !isActive);
+                
+                if (setting === 'notifications' && !isActive) {
+                    this.requestNotificationPermission();
+                }
+            }
+
+            // ==================== SERVICE WORKER ====================
+            async registerServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    try {
+                        const registration = await navigator.serviceWorker.register(
+                            'data:application/javascript,' + encodeURIComponent(`
+                                const CACHE_NAME = 'pc-control-v1';
+                                const urlsToCache = ['/'];
+                                
+                                self.addEventListener('install', event => {
+                                    event.waitUntil(
+                                        caches.open(CACHE_NAME)
+                                            .then(cache => cache.addAll(urlsToCache))
+                                    );
+                                });
+                                
+                                self.addEventListener('fetch', event => {
+                                    event.respondWith(
+                                        caches.match(event.request)
+                                            .then(response => response || fetch(event.request))
+                                    );
+                                });
+                            `)
+                        );
+                        console.log('Service Worker registered:', registration);
+                    } catch (error) {
+                        console.log('Service Worker registration failed:', error);
+                    }
+                }
+            }
+        }
+
+        // ==================== GLOBAL FUNCTIONS ====================
+        let app;
+
+        window.addEventListener('load', () => {
+            app = new PCControlApp();
+        });
+
+        function executeCommand(command) {
+            app.executeCommand(command);
+        }
+
+        function cancelOperation() {
+            app.cancelOperation();
+        }
+
+        function executeNow() {
+            app.executeNow();
+        }
+
+        function toggleScheduler() {
+            app.toggleScheduler();
+        }
+
+        function scheduleCommand() {
+            app.scheduleCommand();
+        }
+
+        function switchMode(mode) {
+            document.getElementById('delayMode').classList.toggle('active', mode === 'delay');
+            document.getElementById('timeMode').classList.toggle('active', mode === 'time');
+            
+            document.getElementById('delayRow').style.display = mode === 'delay' ? 'flex' : 'none';
+            document.getElementById('timeRow').style.display = mode === 'time' ? 'flex' : 'none';
+        }
+
+        function showSettings() {
+            app.showSettings();
+        }
+
+        function hideSettings() {
+            app.hideSettings();
+        }
+
+        function toggleSetting(setting) {
+            app.toggleSetting(setting);
+        }
+
+        // ==================== STEPPER FUNCTIONS ====================
+        function adjustDelay(direction) {
+            const input = document.getElementById('delay');
+            const currentValue = parseInt(input.value) || 0;
+            const min = parseInt(input.min) || 0;
+            const max = parseInt(input.max) || 300;
+            
+            let newValue = currentValue + direction;
+            
+            // Умное увеличение: для больших значений увеличиваем на 5 или 10
+            if (direction > 0 && currentValue >= 10) {
+                newValue = currentValue + (currentValue >= 30 ? 10 : 5);
+            } else if (direction < 0 && currentValue > 10) {
+                newValue = currentValue - (currentValue > 30 ? 10 : 5);
+            }
+            
+            newValue = Math.max(min, Math.min(max, newValue));
+            input.value = newValue;
+            
+            // Визуальная обратная связь
+            input.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                input.style.transform = 'scale(1)';
+            }, 150);
+            
+            // Haptic feedback
+            if (app && app.hapticFeedback) {
+                app.hapticFeedback();
+            }
+        }
+
+        function adjustScheduleDelay(direction) {
+            const input = document.getElementById('scheduleDelay');
+            const currentValue = parseInt(input.value) || 60;
+            const min = parseInt(input.min) || 1;
+            const max = parseInt(input.max) || 86400;
+            
+            let increment;
+            if (currentValue < 60) increment = 5;        // До минуты - по 5 сек
+            else if (currentValue < 300) increment = 15; // До 5 минут - по 15 сек
+            else if (currentValue < 3600) increment = 60; // До часа - по минуте
+            else increment = 300;                         // Больше часа - по 5 минут
+            
+            const newValue = Math.max(min, Math.min(max, currentValue + (direction * increment)));
+            input.value = newValue;
+            
+            // Визуальная обратная связь
+            input.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                input.style.transform = 'scale(1)';
+            }, 150);
+            
+            // Показываем подсказку о текущем времени
+            const hours = Math.floor(newValue / 3600);
+            const minutes = Math.floor((newValue % 3600) / 60);
+            const seconds = newValue % 60;
+            
+            let timeText = '';
+            if (hours > 0) timeText += `${hours}ч `;
+            if (minutes > 0) timeText += `${minutes}м `;
+            if (seconds > 0 && hours === 0) timeText += `${seconds}с`;
+            
+            if (timeText && app && app.showInAppNotification) {
+                // Кратковременное уведомление
+                setTimeout(() => {
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(0,0,0,0.8);
+                        color: white;
+                        padding: 8px 16px;
+                        border-radius: 20px;
+                        font-size: 12px;
+                        font-weight: 600;
+                        z-index: 10000;
+                        pointer-events: none;
+                        opacity: 0;
+                        transition: opacity 0.2s ease;
+                    `;
+                    notification.textContent = timeText.trim();
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => notification.style.opacity = '1', 10);
+                    setTimeout(() => {
+                        notification.style.opacity = '0';
+                        setTimeout(() => notification.remove(), 200);
+                    }, 1000);
+                }, 100);
+            }
+            
+            // Haptic feedback
+            if (app && app.hapticFeedback) {
+                app.hapticFeedback();
+            }
+        }
+    </script>
+</body>
+</html>
