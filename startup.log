@@ -1,0 +1,262 @@
+Sat 07/12/2025 19:02:34.35 - Starting server 
+Sat 07/12/2025 19:02:47.16 - Server started silently 
+Sat 07/12/2025 19:03:15.03 - Starting server 
+Sat 07/12/2025 19:03:28.11 - Server started silently 
+12.07.2025 19:04:17,42 - Starting server 
+12.07.2025 19:04:30,17 - Server started silently 
+Sat 07/12/2025 19:06:25.68 - Starting server 
+Sat 07/12/2025 19:06:38.21 - Server started silently 
+Sat 07/12/2025 19:10:07.37 - Starting server 
+Sat 07/12/2025 19:10:20.11 - Server started silently 
+12.07.2025 19:11:40,00 - Starting server 
+12.07.2025 19:11:53,20 - Server started silently 
+12.07.2025 19:15:08,77 - === STARTUP ATTEMPT === 
+12.07.2025 19:15:08,77 - Current directory: C:\PowerServer 
+12.07.2025 19:15:08,77 - User: Admin 
+12.07.2025 19:15:08,78 - Starting silent server startup process 
+12.07.2025 19:15:08,78 - Terminating existing server processes 
+12.07.2025 19:15:11,12 - Attempting to activate virtual environment 
+12.07.2025 19:15:11,15 - Using venv Python:  
+12.07.2025 19:15:11,15 - Starting server with: C:\PowerServer\power_server_env\Scripts\pythonw.exe 
+12.07.2025 19:15:11,15 - Working directory: C:\PowerServer 
+12.07.2025 19:15:11,16 - Server process started successfully 
+12.07.2025 19:15:11,16 - Waiting for server initialization (10 seconds) 
+12.07.2025 19:15:21,13 - Testing server connectivity 
+12.07.2025 19:15:21,13 - SUCCESS: Server started and responding on port 8000 
+12.07.2025 19:15:21,13 - Server startup completed successfully 
+Sat 07/12/2025 19:15:59.32 - === STARTUP ATTEMPT === 
+Sat 07/12/2025 19:15:59.32 - Current directory: C:\PowerServer 
+Sat 07/12/2025 19:15:59.33 - User: HOSHIQU$ 
+Sat 07/12/2025 19:15:59.34 - Starting silent server startup process 
+Sat 07/12/2025 19:15:59.34 - Terminating existing server processes 
+Sat 07/12/2025 19:16:02.11 - Attempting to activate virtual environment 
+Sat 07/12/2025 19:16:02.14 - Using venv Python:  
+Sat 07/12/2025 19:16:02.14 - Starting server with: C:\PowerServer\power_server_env\Scripts\pythonw.exe 
+Sat 07/12/2025 19:16:02.15 - Working directory: C:\PowerServer 
+Sat 07/12/2025 19:16:02.16 - Server process started successfully 
+Sat 07/12/2025 19:16:02.16 - Waiting for server initialization (10 seconds) 
+Sat 07/12/2025 19:16:12.11 - Testing server connectivity 
+Sat 07/12/2025 19:16:12.11 - Attempt 1: Server not yet responding, retrying in 2 seconds... 
+Sat 07/12/2025 19:16:12.11 - Attempt 2: Server not yet responding, retrying in 2 seconds... 
+Sat 07/12/2025 19:16:12.11 - Attempt 3: Server not yet responding, retrying in 2 seconds... 
+Sat 07/12/2025 19:16:12.11 - Attempt 4: Server not yet responding, retrying in 2 seconds... 
+Sat 07/12/2025 19:16:12.11 - Attempt 5: Server not yet responding, retrying in 2 seconds... 
+Sat 07/12/2025 19:16:42.15 - WARNING: Server process started but not responding on port 8000 
+Sat 07/12/2025 19:16:42.15 - This may be normal during first startup 
+Sat 07/12/2025 19:16:42.15 - Check power_server.log for Python errors 
+Sat 07/12/2025 19:16:42.16 - Server startup process completed with warnings 
+Sat 07/12/2025 19:23:12.17 - Starting server setup 
+Sat 07/12/2025 19:23:17.11 - Virtual environment activated 
+Sat 07/12/2025 19:23:17.14 - Starting server 
+Sat 07/12/2025 19:23:32.15 - Server startup completed 
+Sat 07/12/2025 19:24:02.30 - Starting server setup 
+Sat 07/12/2025 19:24:07.12 - Virtual environment activated 
+Sat 07/12/2025 19:24:07.14 - Starting server 
+Sat 07/12/2025 19:24:22.15 - Server startup completed 
+12.07.2025 19:24:45,07 - Starting server setup 
+12.07.2025 19:24:50,12 - Virtual environment activated 
+12.07.2025 19:24:50,15 - Starting server 
+12.07.2025 19:25:05,15 - Server startup completed 
+Sat 07/12/2025 19:25:43.78 - Starting server setup 
+Sat 07/12/2025 19:25:48.16 - Virtual environment activated 
+Sat 07/12/2025 19:25:48.19 - Starting server 
+Sat 07/12/2025 19:26:03.15 - Server startup completed 
+12.07.2025 19:32:08,20 - === SYSTEM STARTUP WITH ABSOLUTE PATHS === 
+12.07.2025 19:32:08,20 - Current user: Admin 
+12.07.2025 19:32:13,14 - Using venv Python with absolute path 
+12.07.2025 19:32:13,14 - Testing venv Python access for SYSTEM... 
+Python 3.11.9
+12.07.2025 19:32:13,14 - Testing Flask access for SYSTEM... 
+<string>:1: DeprecationWarning: The '__version__' attribute is deprecated and will be removed in Flask 3.2. Use feature detection or 'importlib.metadata.version("flask")' instead.
+Flask version: 3.1.1
+12.07.2025 19:32:13,44 - Checking port 8000... 
+12.07.2025 19:32:13,45 - Port 8000 is free 
+12.07.2025 19:32:13,45 - Starting server with absolute path: C:\PowerServer\power_server_env\Scripts\pythonw.exe 
+12.07.2025 19:32:13,46 - Waiting 20 seconds for server startup... 
+12.07.2025 19:32:33,18 - Testing server connectivity... 
+SUCCESS: Server responding
+12.07.2025 19:32:35,46 - Final port check... 
+  TCP    0.0.0.0:8000           0.0.0.0:0              LISTENING
+  TCP    127.0.0.1:50722        127.0.0.1:8000         TIME_WAIT
+  TCP    192.168.1.55:50719     192.168.1.55:8000      TIME_WAIT
+  TCP    192.168.1.55:50720     192.168.1.55:8000      TIME_WAIT
+12.07.2025 19:32:35,48 - Final Python processes... 
+pythonw.exe                  35564 Console                    1     11ÿ472 K
+pythonw3.11.exe              32936 Console                    1     43ÿ120 K
+12.07.2025 19:32:35,65 - === STARTUP COMPLETED === 
+Sat 07/12/2025 19:32:54.90 - === SYSTEM STARTUP WITH ABSOLUTE PATHS === 
+Sat 07/12/2025 19:32:54.90 - Current user: HOSHIQU$ 
+Sat 07/12/2025 19:33:00.16 - Using venv Python with absolute path 
+Sat 07/12/2025 19:33:00.16 - Testing venv Python access for SYSTEM... 
+Unable to create process using '"C:\Users\Admin\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\python.exe" --version '
+Sat 07/12/2025 19:33:00.16 - Testing Flask access for SYSTEM... 
+Unable to create process using '"C:\Users\Admin\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\python.exe" -c "import flask; print('Flask version:', flask.__version__)" '
+Sat 07/12/2025 19:33:00.28 - Checking port 8000... 
+Sat 07/12/2025 19:33:00.30 - Port 8000 is free 
+Sat 07/12/2025 19:33:00.30 - Starting server with absolute path: C:\PowerServer\power_server_env\Scripts\pythonw.exe 
+Sat 07/12/2025 19:33:00.31 - Waiting 20 seconds for server startup... 
+Sat 07/12/2025 19:33:20.20 - Testing server connectivity... 
+FAILED: ?????????? ??????????? ? ????????? ????????
+Sat 07/12/2025 19:33:24.40 - Final port check... 
+  TCP    127.0.0.1:50722        127.0.0.1:8000         TIME_WAIT
+  TCP    192.168.1.55:50719     192.168.1.55:8000      TIME_WAIT
+  TCP    192.168.1.55:50720     192.168.1.55:8000      TIME_WAIT
+  TCP    192.168.1.55:50723     192.168.1.55:8000      TIME_WAIT
+  TCP    192.168.1.55:50724     192.168.1.55:8000      TIME_WAIT
+Sat 07/12/2025 19:33:24.41 - Final Python processes... 
+pythonw.exe                  22076 Services                   0      9,208 K
+Sat 07/12/2025 19:33:24.56 - === STARTUP COMPLETED === 
+13.07.2025  6:45:09,38 - Starting user mode server 
+13.07.2025  6:45:12,14 - Virtual environment activated 
+13.07.2025  6:45:12,18 - Starting server 
+13.07.2025  6:45:27,13 - Startup completed 
+13.07.2025  6:46:34,79 - Starting user mode server 
+13.07.2025  6:46:37,21 - Virtual environment activated 
+13.07.2025  6:46:37,24 - Starting server 
+13.07.2025  6:46:52,12 - Startup completed 
+13.07.2025  6:49:03,38 - Starting user mode server 
+13.07.2025  6:49:06,13 - Virtual environment activated 
+13.07.2025  6:49:06,16 - Starting server 
+13.07.2025  6:49:21,15 - Startup completed 
+13.07.2025  7:05:13,06 - Starting user mode server 
+13.07.2025  7:05:16,16 - Virtual environment activated 
+13.07.2025  7:05:16,19 - Starting server 
+13.07.2025  7:05:31,14 - Startup completed 
+13.07.2025  7:13:12,95 - Starting user mode server 
+13.07.2025  7:13:16,16 - Virtual environment activated 
+13.07.2025  7:13:16,19 - Starting server 
+13.07.2025  7:13:31,17 - Startup completed 
+13.07.2025  7:13:58,73 - Starting user mode server 
+13.07.2025  7:14:01,16 - Virtual environment activated 
+13.07.2025  7:14:01,19 - Starting server 
+13.07.2025  7:14:16,22 - Startup completed 
+15.07.2025  0:31:40,25 - Starting user mode server 
+15.07.2025  0:31:43,13 - Virtual environment activated 
+15.07.2025  0:31:43,20 - Starting server 
+15.07.2025  0:31:58,17 - Startup completed 
+15.07.2025  0:36:16,41 - Starting user mode server 
+15.07.2025  0:36:19,12 - Virtual environment activated 
+15.07.2025  0:36:19,15 - Starting server 
+15.07.2025  0:36:34,13 - Startup completed 
+15.07.2025  0:37:28,85 - Starting user mode server 
+15.07.2025  0:37:32,12 - Virtual environment activated 
+15.07.2025  0:37:32,15 - Starting server 
+15.07.2025  0:37:47,11 - Startup completed 
+15.07.2025  0:45:54,86 - Starting user mode server 
+15.07.2025  0:45:58,13 - Virtual environment activated 
+15.07.2025  0:45:58,16 - Starting server 
+15.07.2025  0:46:13,14 - Startup completed 
+15.07.2025 17:37:19,67 - Starting user mode server 
+15.07.2025 17:37:23,19 - Virtual environment activated 
+15.07.2025 17:37:23,26 - Starting server 
+15.07.2025 17:37:38,19 - Startup completed 
+15.07.2025 22:42:59,75 - Starting user mode server 
+15.07.2025 22:43:03,13 - Virtual environment activated 
+15.07.2025 22:43:03,19 - Starting server 
+15.07.2025 22:43:18,12 - Startup completed 
+16.07.2025 16:34:07,68 - Starting user mode server 
+16.07.2025 16:34:13,21 - Virtual environment activated 
+16.07.2025 16:34:13,38 - Starting server 
+16.07.2025 16:34:28,13 - Startup completed 
+17.07.2025 14:28:45,86 - Starting user mode server 
+17.07.2025 14:28:49,13 - Virtual environment activated 
+17.07.2025 14:28:49,22 - Starting server 
+17.07.2025 14:29:04,14 - Startup completed 
+17.07.2025 14:54:28,54 - Starting user mode server 
+17.07.2025 14:54:33,20 - Virtual environment activated 
+17.07.2025 14:54:33,32 - Starting server 
+17.07.2025 14:54:48,19 - Startup completed 
+19.07.2025  0:05:18,91 - Starting user mode server 
+19.07.2025  0:05:24,14 - Virtual environment activated 
+19.07.2025  0:05:24,34 - Starting server 
+19.07.2025  0:05:39,15 - Startup completed 
+19.07.2025 20:03:01,19 - Starting user mode server 
+19.07.2025 20:03:05,14 - Virtual environment activated 
+19.07.2025 20:03:05,43 - Starting server 
+19.07.2025 20:03:20,16 - Startup completed 
+23.07.2025  2:39:51,98 - Starting user mode server 
+23.07.2025  2:39:55,16 - Virtual environment activated 
+23.07.2025  2:39:55,33 - Starting server 
+23.07.2025  2:40:10,20 - Startup completed 
+13.08.2025 14:31:43,77 - Starting user mode server 
+13.08.2025 14:31:47,18 - Virtual environment activated 
+13.08.2025 14:31:47,48 - Starting server 
+13.08.2025 14:32:02,16 - Startup completed 
+24.09.2025  1:48:58,12 - Starting user mode server 
+24.09.2025  1:49:02,11 - Virtual environment activated 
+24.09.2025  1:49:02,44 - Starting server 
+24.09.2025  1:49:17,18 - Startup completed 
+26.09.2025  6:51:09,90 - Starting user mode server 
+26.09.2025  6:51:13,20 - Virtual environment activated 
+26.09.2025  6:51:13,32 - Starting server 
+26.09.2025  6:51:28,14 - Startup completed 
+11.10.2025  1:54:03,37 - Starting user mode server 
+11.10.2025  1:54:07,21 - Virtual environment activated 
+11.10.2025  1:54:07,95 - Starting server 
+11.10.2025  1:54:22,48 - Startup completed 
+28.10.2025 12:43:52,44 - Starting user mode server 
+28.10.2025 12:43:55,13 - Virtual environment activated 
+28.10.2025 12:43:55,67 - Starting server 
+28.10.2025 12:44:10,11 - Startup completed 
+11.11.2025 21:29:25,09 - Starting user mode server 
+11.11.2025 21:29:28,22 - Virtual environment activated 
+11.11.2025 21:29:28,53 - Starting server 
+11.11.2025 21:29:43,15 - Startup completed 
+11.11.2025 23:03:32,11 - Starting user mode server 
+11.11.2025 23:03:35,13 - Virtual environment activated 
+11.11.2025 23:03:35,65 - Starting server 
+11.11.2025 23:03:50,24 - Startup completed 
+16.11.2025 14:39:08,09 - Starting user mode server 
+16.11.2025 14:39:11,14 - Virtual environment activated 
+16.11.2025 14:39:11,28 - Starting server 
+16.11.2025 14:39:26,21 - Startup completed 
+20.11.2025  1:53:13,27 - Starting user mode server 
+20.11.2025  1:53:16,15 - Virtual environment activated 
+20.11.2025  1:53:16,35 - Starting server 
+20.11.2025  1:53:31,14 - Startup completed 
+09.01.2026 17:22:32,91 - Starting user mode server 
+09.01.2026 17:22:36,14 - Virtual environment activated 
+09.01.2026 17:22:36,22 - Starting server 
+09.01.2026 17:22:51,12 - Startup completed 
+15.01.2026  2:48:45,97 - === USER MODE STARTUP === 
+15.01.2026  2:48:45,98 - Current user: Admin 
+15.01.2026  2:48:49,19 - Activating virtual environment 
+15.01.2026  2:48:49,19 - Testing Python access 
+Python 3.11.9
+15.01.2026  2:48:49,19 - Starting server 
+15.01.2026  2:48:49,19 - Testing connectivity 
+SUCCESS
+15.01.2026  2:49:06,46 - === USER STARTUP COMPLETED === 
+15.01.2026  3:28:49,96 - === USER MODE STARTUP === 
+15.01.2026  3:28:49,96 - Current user: Admin 
+15.01.2026  3:28:53,17 - Activating virtual environment 
+15.01.2026  3:28:53,17 - Testing Python access 
+Python 3.11.9
+15.01.2026  3:28:53,17 - Starting server 
+15.01.2026  3:28:59,07 - Starting user mode server 
+15.01.2026  3:29:02,16 - Virtual environment activated 
+15.01.2026  3:29:02,19 - Starting server 
+15.01.2026  3:28:53,17 - Testing connectivity 
+SUCCESS
+15.01.2026  3:29:10,35 - === USER STARTUP COMPLETED === 
+15.01.2026  3:29:17,17 - Startup completed 
+15.01.2026  3:29:17,66 - Starting user mode server 
+15.01.2026  3:29:20,21 - Virtual environment activated 
+15.01.2026  3:29:20,24 - Starting server 
+15.01.2026  3:29:22,73 - Starting user mode server 
+15.01.2026  3:29:25,19 - Virtual environment activated 
+15.01.2026  3:29:25,22 - Starting server 
+15.01.2026  3:29:35,14 - Startup completed 
+15.01.2026  3:29:40,13 - Startup completed 
+17.01.2026 20:30:42,55 - Starting user mode server 
+17.01.2026 20:30:45,18 - Virtual environment activated 
+17.01.2026 20:30:45,57 - Starting server 
+17.01.2026 20:31:00,14 - Startup completed 
+05.02.2026 10:26:14,62 - Starting user mode server 
+05.02.2026 10:26:17,20 - Virtual environment activated 
+05.02.2026 10:26:17,85 - Starting server 
+05.02.2026 10:26:32,14 - Startup completed 
+09.02.2026 16:10:58,35 - Starting user mode server 
+09.02.2026 16:11:01,20 - Virtual environment activated 
+09.02.2026 16:11:02,27 - Starting server 
+09.02.2026 16:11:17,12 - Startup completed 
